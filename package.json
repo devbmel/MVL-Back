@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "argon2": "^0.41.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.0"
   },
   "name": "My Virtual Library",
