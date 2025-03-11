@@ -11,8 +11,8 @@ class AuthController {
       return res.status(400).json({ error: "Missing required field" });
     }
     try {
-      await this.authService.register(username, email, password);
-      res.status(201).json("User created with success");
+      const user = await this.authService.register(username, email, password);
+      res.status(201).json(user);
     } catch (error) {
       const message = `Error in authcontroller: ${error.message}`;
       console.error(message);
@@ -36,17 +36,21 @@ class AuthController {
         sameSite: "Strict",
         expires: new Date(Date.now() + 3600000),
       });
-      res.status(200).json({
-        user: {
-          username: user.username,
-          email: user.email,
-        },
-      });
+      res.status(200).json(user);
     } catch (error) {
       const message = `Error in authcontroller: ${error.message}`;
       console.error(message);
       res.status(500).json({ error: "Internal server error" });
     }
+  }
+
+  async logout(req, res) {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env === "dev",
+      sameSite: "Strict",
+    });
+    res.status(200).json({ message: "Logout with success" });
   }
 }
 

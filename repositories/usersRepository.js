@@ -42,6 +42,22 @@ class UsersRepository {
       if (connexion) connexion.release();
     }
   }
+
+  async getUserById(id) {
+    let connexion;
+    try {
+      connexion = await this.pool.getConnection();
+      const userById = await connexion.query(
+        "SELECT * FROM users WHERE id = ?",
+        [id]
+      );
+      return userById[0];
+    } catch (error) {
+      const message = `Error in getUserById repository: ${error.message}`;
+      console.error(message);
+      throw new Error(message);
+    }
+  }
 }
 
 export default UsersRepository;
