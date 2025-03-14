@@ -1,22 +1,23 @@
-import pool from "../config/db.js";
+// import pool from "../config/mariadb.js";
+
+import pool from "../config/postgres.js"
 
 class UsersRepository {
   constructor() {
-    this.pool = pool();
+    this.pool = pool;
   }
 
   async createUser(username, email, hashedPassword) {
     let connexion;
     try {
-      connexion = await this.pool.getConnection();
-      await connexion.query(
-        "INSERT INTO users (username, email, password) VALUES (?,?,?)",
+      connexion = await this.pool.connect();
+
+      const result = await connexion.query(
+        "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING username, email",
         [username, email, hashedPassword]
       );
-      return {
-        username,
-        email,
-      };
+      return result.rows[0]; 
+      
     } catch (error) {
       const message = `Error in createUser repository: ${error.message}`;
       console.error(message);
@@ -28,9 +29,9 @@ class UsersRepository {
   async getUserByEmail(email) {
     let connexion;
     try {
-      connexion = await this.pool.getConnection();
+      connexion = await this.pool.connect();
       const userByEmail = await connexion.query(
-        "SELECT * FROM users WHERE email=?",
+        "SELECT * FROM users WHERE email=$1",
         [email]
       );
       return userByEmail[0];
@@ -46,9 +47,9 @@ class UsersRepository {
   async getUserById(id) {
     let connexion;
     try {
-      connexion = await this.pool.getConnection();
+      connexion = await this.pool.connect();
       const userById = await connexion.query(
-        "SELECT * FROM users WHERE id = ?",
+        "SELECT * FROM users WHERE id = $1",
         [id]
       );
       return userById[0];
